@@ -4,7 +4,7 @@ import { authGuard } from '../middleware/authGuard.js';
 import { createUserSchema } from '../dtos/CreateUser.dto.js';
 import User from '../models/user.js';
 import { errorResponse } from '../utils/functions.js';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 import { generateToken } from '../services/auth.service.js';
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.get('/:id', authGuard, async (req, res) => {
         return res.status(400).json(errorResponse('Parâmetros inválidos', ['id']));
     }
     try {
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(id, { attributes: { exclude: ['password'] } });
         if (!user) {
             return res.status(404).json(errorResponse('Usuário não encontrado', ['id']));
         }
@@ -44,7 +44,8 @@ router.get('/', authGuard, async (req, res) => {
             where,
             limit,
             offset,
-            order: [['id', 'ASC']]
+            order: [['id', 'ASC']],
+            attributes: { exclude: ['password'] }
         });
         res.json({
             users: rows,
@@ -76,8 +77,8 @@ router.post('/', async (req, res) => {
         });
         res.setHeader('Authorization', `Bearer ${token}`);
         res.status(201).json({
-            message: 'Usuário criado com sucesso'
-            , user: {
+            message: 'Usuário criado com sucesso',
+            user: {
                 id: user.id,
                 name: user.name,
                 email: user.email
@@ -109,9 +110,15 @@ router.put('/:id', authGuard, async (req, res) => {
             return res.status(404).json(errorResponse('Usuário não encontrado', ['id']));
         }
         userData.password = await bcrypt.hash(userData.password, 10)
-
         await user.update(userData);
-        res.json({ message: 'Usuário atualizado com sucesso', user });
+        res.json({
+            message: 'Usuário atualizado com sucesso',
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            }
+        });
     } catch (err) {
         res.status(500).json(errorResponse('Erro ao atualizar usuário'));
     }

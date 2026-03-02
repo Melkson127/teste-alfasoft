@@ -11,7 +11,7 @@ yarn-error.log*
 # dotenv environment variables
 .env
 
-
+uploads/*.*
 # Sequelize migrations config
 .sequelizerc
 
