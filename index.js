@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import contactsRouter from './routes/contacts.js';
 import usersRouter from './routes/user.js';
 import sequelize, { testConnection } from './db/db.js';
-
+import authRouter from './routes/auth.js'
 dotenv.config();
 
 const app = express();
@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use('/contact', contactsRouter);
 app.use('/user', usersRouter);
-
+app.use('/auth', authRouter)
 app.get('/', (req, res) => {
     res.send('API de Contatos está rodando!');
 });
